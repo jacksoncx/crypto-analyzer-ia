@@ -510,9 +510,7 @@
     </div>
 
     <script>
-        const API_BASE_URL = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
-            ? 'http://localhost:5000'
-            : window.location.origin;
+        const API_BASE_URL = 'https://crypto-analyzer-ia-1.onrender.com';
 
         const cryptoInput = document.getElementById('cryptoInput');
         const analyzeBtn = document.getElementById('analyzeBtn');
