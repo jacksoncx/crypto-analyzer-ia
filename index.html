@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Criptomoedas - IA & Análise Técnica</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .search-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-box {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            background-color: #f9f9f9;
+        }
+        
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .preset-btn {
+            background-color: white;
+            color: var(--secondary);
+            border: 2px solid var(--secondary);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .preset-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .analysis-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .card-icon {
+            font-size: 1.8rem;
+        }
+        
+        .indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .indicator-name {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .indicator-value {
+            font-weight: 700;
+            text-align: right;
+            color: var(--dark);
+        }
+        
+        .positive {
+            color: var(--success);
+        }
+        
+        .negative {
+            color: var(--danger);
+        }
+        
+        .neutral {
+            color: var(--warning);
+        }
+        
+        .prediction {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 12px;
+            margin-top: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .prediction-title {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .prediction-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 20px 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .prediction-text {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            height: 25px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        
+        .up {
+            background: linear-gradient(90deg, var(--success), #27ae60);
+        }
+        
+        .down {
+            background: linear-gradient(90deg, var(--danger), #c0392b);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .spinner {
+            border: 5px solid rgba(255,255,255,0.3);
+            border-left-color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading p {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .error-message {
+            background-color: #fadbd8;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+        }
+        
+        .crypto-symbol {
+            font-weight: 800;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Analisador de Criptomoedas</h1>
+            <p class="subtitle">Análise Técnica Avançada + Inteligência Artificial</p>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-box">
+                <input type="text" id="cryptoInput" placeholder="Digite o símbolo da criptomoeda (ex: BTC, ETH, ADA...)">
+                <button id="analyzeBtn">Analisar</button>
+            </div>
+        </section>
+        
+        <div class="preset-buttons">
+            <button class="preset-btn" onclick="searchCrypto('BTC')">Bitcoin (BTC)</button>
+            <button class="preset-btn" onclick="searchCrypto('ETH')">Ethereum (ETH)</button>
+            <button class="preset-btn" onclick="searchCrypto('ADA')">Cardano (ADA)</button>
+            <button class="preset-btn" onclick="searchCrypto('XRP')">Ripple (XRP)</button>
+            <button class="preset-btn" onclick="searchCrypto('LTC')">Litecoin (LTC)</button>
+        </div>
+        
+        <div id="errorMessage" class="error-message hidden"></div>
+        
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Analisando dados com IA e indicadores técnicos...</p>
+        </div>
+        
+        <div id="results" class="hidden">
+            <div class="analysis-container">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Informações de Preço</h2>
+                        <div class="card-icon">💹</div>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Moeda</span>
+                        <span class="indicator-value crypto-symbol" id="cryptoName">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Preço Atual</span>
+                        <span class="indicator-value" id="currentPrice">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Variação 24h</span>
+                        <span class="indicator-value" id="priceChange">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Variação 7d</span>
+                        <span class="indicator-value" id="change7d">-</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Indicadores Técnicos</h2>
+                        <div class="card-icon">📈</div>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">RSI (14)</span>
+                        <span class="indicator-value" id="rsi">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Status RSI</span>
+                        <span class="indicator-value" id="rsiStatus">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">MACD</span>
+                        <span class="indicator-value" id="macd">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Status MACD</span>
+                        <span class="indicator-value" id="macdStatus">-</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Bandas de Bollinger</h2>
+                        <div class="card-icon">📊</div>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Banda Superior</span>
+                        <span class="indicator-value" id="bbUpper">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Banda Média (SMA)</span>
+                        <span class="indicator-value" id="bbMiddle">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Banda Inferior</span>
+                        <span class="indicator-value" id="bbLower">-</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Médias Móveis</h2>
+                        <div class="card-icon">📉</div>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">SMA 20</span>
+                        <span class="indicator-value" id="sma20">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">SMA 50</span>
+                        <span class="indicator-value" id="sma50">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Posição Relativa</span>
+                        <span class="indicator-value" id="smaPosition">-</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Volume</h2>
+                        <div class="card-icon">💧</div>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Volume Atual</span>
+                        <span class="indicator-value" id="volumeCurrent">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Média 20d</span>
+                        <span class="indicator-value" id="volumeAvg">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Razão (%)</span>
+                        <span class="indicator-value" id="volumeRatio">-</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Sentimento de Mercado</h2>
+                        <div class="card-icon">😨😊</div>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Fear & Greed Index</span>
+                        <span class="indicator-value" id="fearGreedValue">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Status</span>
+                        <span class="indicator-value" id="fearGreedStatus">-</span>
+                    </div>
+                    <div class="indicator">
+                        <span class="indicator-name">Interpretacao</span>
+                        <span class="indicator-value" id="fearGreedInterpretation" style="font-size: 0.9rem;">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="prediction">
+                <h3 class="prediction-title">🤖 Previsão por IA</h3>
+                <div class="confidence-badge" id="confidenceBadge">-</div>
+                <div class="prediction-value" id="predictionPercent">-</div>
+                <p class="prediction-text" id="predictionDirection">-</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="predictionBar" style="width: 50%">50%</div>
+                </div>
+                <p style="margin-top: 15px; font-size: 0.95rem; opacity: 0.9;">Modelo treinado com dados históricos e indicadores técnicos avançados</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+            ? 'http://localhost:5000'
+            : window.location.origin;
+
+        const cryptoInput = document.getElementById('cryptoInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        const errorMessage = document.getElementById('errorMessage');
+
+        function searchCrypto(symbol) {
+            cryptoInput.value = symbol;
+            analyzeBtn.click();
+        }
+
+        analyzeBtn.addEventListener('click', async function() {
+            const symbol = cryptoInput.value.trim().toUpperCase();
+            
+            if (!symbol) {
+                showError('Por favor, digite um símbolo de criptomoeda.');
+                return;
+            }
+
+            await analyzeCrypto(symbol);
+        });
+
+        async function analyzeCrypto(symbol) {
+            loading.classList.remove('hidden');
+            results.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/analyze/${symbol}`);
+                
+                if (!response.ok) {
+                    throw new Error('Criptomoeda não encontrada ou erro na API');
+                }
+
+                const data = await response.json();
+                updateDOM(data);
+
+                loading.classList.add('hidden');
+                results.classList.remove('hidden');
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                showError(error.message || 'Erro ao buscar dados. Tente novamente.');
+            }
+        }
+
+        function updateDOM(data) {
+            // Informações de Preço
+            document.getElementById('cryptoName').textContent = data.symbol;
+            document.getElementById('currentPrice').textContent = `$${data.current_price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 8})}`;
+            
+            const change24hClass = data.change_24h >= 0 ? 'positive' : 'negative';
+            const change24hSign = data.change_24h >= 0 ? '+' : '';
+            document.getElementById('priceChange').innerHTML = `<span class="${change24hClass}">${change24hSign}${data.change_24h.toFixed(2)}%</span>`;
+            
+            const change7dClass = data.change_7d >= 0 ? 'positive' : 'negative';
+            const change7dSign = data.change_7d >= 0 ? '+' : '';
+            document.getElementById('change7d').innerHTML = `<span class="${change7dClass}">${change7dSign}${data.change_7d.toFixed(2)}%</span>`;
+
+            // Indicadores Técnicos
+            const rsiValue = data.technical_indicators.rsi;
+            document.getElementById('rsi').textContent = rsiValue ? rsiValue.toFixed(2) : 'N/A';
+            document.getElementById('rsiStatus').innerHTML = `<span class="${data.technical_indicators.rsi_status === 'Sobrecomprado' ? 'negative' : data.technical_indicators.rsi_status === 'Sobrevendido' ? 'positive' : 'neutral'}">${data.technical_indicators.rsi_status}</span>`;
+            
+            document.getElementById('macd').textContent = data.technical_indicators.macd ? data.technical_indicators.macd.toFixed(8) : 'N/A';
+            document.getElementById('macdStatus').innerHTML = `<span class="${data.technical_indicators.macd_status === 'Positivo' ? 'positive' : 'negative'}">${data.technical_indicators.macd_status}</span>`;
+
+            // Bandas de Bollinger
+            document.getElementById('bbUpper').textContent = data.technical_indicators.bollinger_upper ? `$${data.technical_indicators.bollinger_upper.toFixed(8)}` : 'N/A';
+            document.getElementById('bbMiddle').textContent = data.technical_indicators.bollinger_middle ? `$${data.technical_indicators.bollinger_middle.toFixed(8)}` : 'N/A';
+            document.getElementById('bbLower').textContent = data.technical_indicators.bollinger_lower ? `$${data.technical_indicators.bollinger_lower.toFixed(8)}` : 'N/A';
+
+            // Médias Móveis
+            document.getElementById('sma20').textContent = data.technical_indicators.sma_20 ? `$${data.technical_indicators.sma_20.toFixed(8)}` : 'N/A';
+            document.getElementById('sma50').textContent = data.technical_indicators.sma_50 ? `$${data.technical_indicators.sma_50.toFixed(8)}` : 'N/A';
+            
+            if (data.technical_indicators.sma_20 && data.technical_indicators.sma_50) {
+                const smaRatio = ((data.technical_indicators.sma_20 / data.technical_indicators.sma_50) - 1) * 100;
+                const smaClass = smaRatio > 0 ? 'positive' : 'negative';
+                const smaSign = smaRatio > 0 ? '+' : '';
+                document.getElementById('smaPosition').innerHTML = `<span class="${smaClass}">${smaSign}${smaRatio.toFixed(2)}%</span>`;
+            } else {
+                document.getElementById('smaPosition').textContent = 'N/A';
+            }
+
+            // Volume
+            document.getElementById('volumeCurrent').textContent = formatCurrency(data.volume.current);
+            document.getElementById('volumeAvg').textContent = formatCurrency(data.volume.average_20d);
+            const volumeClass = data.volume.ratio_percent >= 0 ? 'positive' : 'negative';
+            const volumeSign = data.volume.ratio_percent >= 0 ? '+' : '';
+            document.getElementById('volumeRatio').innerHTML = `<span class="${volumeClass}">${volumeSign}${data.volume.ratio_percent.toFixed(2)}%</span>`;
+
+            // Sentimento de Mercado (Fear and Greed Index)
+            const fearGreedValue = data.market_sentiment.fear_greed_index;
+            const fearGreedStatus = data.market_sentiment.fear_greed_status;
+            
+            document.getElementById('fearGreedValue').textContent = fearGreedValue;
+            document.getElementById('fearGreedStatus').innerHTML = `<span class="${fearGreedValue < 25 ? 'negative' : fearGreedValue < 45 ? 'negative' : fearGreedValue < 55 ? 'neutral' : fearGreedValue < 75 ? 'positive' : 'positive'}">${fearGreedStatus}</span>`;
+            
+            let fearGreedInterpretation = '';
+            if (fearGreedValue < 25) {
+                fearGreedInterpretation = 'Medo extremo - Possivel oportunidade de compra';
+            } else if (fearGreedValue < 45) {
+                fearGreedInterpretation = 'Medo - Mercado pessimista';
+            } else if (fearGreedValue < 55) {
+                fearGreedInterpretation = 'Neutro - Mercado equilibrado';
+            } else if (fearGreedValue < 75) {
+                fearGreedInterpretation = 'Ganancia - Mercado otimista';
+            } else {
+                fearGreedInterpretation = 'Ganancia extrema - Possivel correcao';
+            }
+            document.getElementById('fearGreedInterpretation').textContent = fearGreedInterpretation;
+
+            // Previsao
+            const predictionPercent = data.prediction.percent;
+            const isUp = predictionPercent > 50;
+            
+            document.getElementById('predictionPercent').textContent = predictionPercent + '%';
+            document.getElementById('predictionDirection').textContent = `${predictionPercent}% de probabilidade de ${data.prediction.direction}`;
+            document.getElementById('confidenceBadge').textContent = `Confiança: ${data.prediction.confidence}`;
+            
+            const predictionBar = document.getElementById('predictionBar');
+            predictionBar.className = `progress-fill ${isUp ? 'up' : 'down'}`;
+            predictionBar.style.width = predictionPercent + '%';
+            predictionBar.textContent = predictionPercent + '%';
+        }
+
+        function formatCurrency(value) {
+            if (value >= 1e9) {
+                return '$' + (value / 1e9).toFixed(2) + 'B';
+            } else if (value >= 1e6) {
+                return '$' + (value / 1e6).toFixed(2) + 'M';
+            } else if (value >= 1e3) {
+                return '$' + (value / 1e3).toFixed(2) + 'K';
+            } else {
+                return '$' + value.toFixed(2);
+            }
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+            results.classList.add('hidden');
+            loading.classList.add('hidden');
+        }
+
+        // Permitir busca com Enter
+        cryptoInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeBtn.click();
+            }
+        });
+
+        // Buscar Bitcoin ao carregar a página
+        window.addEventListener('load', function() {
+            searchCrypto('BTC');
+        });
+    </script>
+</body>
+</html>
+
