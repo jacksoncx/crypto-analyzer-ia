@@ -2,7 +2,7 @@
 Backend Flask para Análise de Criptomoedas com Análise Técnica, Machine Learning e Sentimento de Mercado
 """
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import requests
 import pandas as pd
@@ -452,24 +452,12 @@ def health():
         'timestamp': datetime.now().isoformat()
     }), 200
 
-@app.route('/', methods=['GET'])
-def index():
+@app.route('/')
+def serve_index():
     """
-    Rota raiz retorna informações da API.
+    Rota raiz serve o Frontend (index.html).
     """
-    return jsonify({
-        'name': 'Crypto Analyzer API',
-        'version': '2.0.0',
-        'features': [
-            'Análise Técnica Avançada (RSI, MACD, Bandas de Bollinger)',
-            'Machine Learning com Fear and Greed Index',
-            'Previsão de Direção de Preço com IA'
-        ],
-        'endpoints': {
-            '/api/analyze/<symbol>': 'Analisar uma criptomoeda (ex: /api/analyze/BTC?market=USD)',
-            '/api/health': 'Verificar saúde da API'
-        }
-    }), 200
+    return send_from_directory('static', 'index.html')
 
 if __name__ == '__main__':
     # Para desenvolvimento
